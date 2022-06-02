@@ -1,12 +1,28 @@
 import string
+import collections
+try:
+    from collections import abc
+    collections.MutableMapping = abc.MutableMapping
+except:
+    pass
 from tokenize import String
 from flask import Flask
 from flask import request
 from firebase import *
 import pickle
 
-saved_networks = ["STUDBME1", "STUDBME2","SBME_STAFF", "CUFE", "RehabLab","CMP_LAB1", "CMP_LAB2","Redmi","Galaxy Note 10+","omar"]
-RSSI=[[0,0,0,0,0,0,0,0]]
+saved_networks = ["MO",
+                "medhat",
+                "El-lab",
+                "RehabLab",
+                "Elmodarag",
+                "STUDBME1",
+                "STUDBME2",
+                "WE_99ECD6",
+                "noran",
+                "mawlana",
+                "Redmi7788"]
+RSSI=[[0, 0, 0, 0, 0, 0, 0, 0, 0 , 0 , 0]]
 app = Flask(__name__)
 count =0
 last_label =-1
@@ -17,7 +33,7 @@ def helloesp():
         RSSI[0][i] = int(value)
     global count
     count +=1
-    loaded_model = pickle.load(open('model.sav', 'rb'))
+    loaded_model = pickle.load(open('KNN.sav', 'rb'))
     
     label =loaded_model.predict(RSSI)
     global last_label

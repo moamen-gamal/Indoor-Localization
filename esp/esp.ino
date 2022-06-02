@@ -1,10 +1,23 @@
 #include "ESP8266WiFi.h"
 #include <ESP8266HTTPClient.h>
-#define NAME ""
-#define PASS ""
-String NETWORKS []=["",""];
-int RSSIs []=[];
-int Nnum =9;
+#define NAME "STUDBME2"
+#define PASS "BME2Stud"
+int AvailableNetworks;
+void connectWifi();
+void sendDatas();
+String routers_ssid[11] = { "MO",
+                            "medhat",
+                            "El-lab",
+                            "RehabLab",
+                            "Elmodarag",
+                            "STUDBME1",
+                            "STUDBME2",
+                            "WE_99ECD6",
+                            "noran",
+                            "mawlana",
+                            "Redmi7788"
+                          };
+int RSSIs[11] = { -100, -100, -100, -100, -100, -100, -100, -100, -100 , -100 , -100};
 
 String pay;
 String payload;  
@@ -24,40 +37,46 @@ void loop() {
   // put your main code here, to run repeatedly:
   networkSearch();
   connectWifi();
-  sendData();
+  sendDatas();
 }
 void networkSearch(){
   WiFi.disconnect();
   int n = WiFi.scanNetworks();
-  for(int i=0;i<Nnum;i++){
-    bool found = false;
-    for(int j =0; j<n; j++){
-      if(WiFi.SSID(i) == NETWORKS[i]){
-        RSSIs[i]=WiFi.RSSI(i);
+  AvailableNetworks = WiFi.scanNetworks();
+  for (int j = 0; j < 11; j++)
+  {
+    for (int i = 0; i < AvailableNetworks; i++)
+    {
+      if (routers_ssid[j] == WiFi.SSID(i))
+      {
+        RSSIs[j] = WiFi.RSSI(i);
       }
     }
-    if(!found){
-      RSSIs[i]=-100
-    }
+    Serial.print(RSSIs[j]);
+    Serial.print(',');
   }
+
+  Serial.println("");
+  delay(500);
 }
+
 void connectWifi(){
-  WiFi.begin(NAME, PASS);
-  //Serial.println("Connecting");
-  while(WiFi.status() != WL_CONNECTED) {
-    delay(50);
-  }
+ WiFi.begin(NAME, PASS);
+ //Serial.println("Connecting");
+ while(WiFi.status() != WL_CONNECTED) {
+   delay(50);
+ }
 }
-void sendData(){
-  WiFiClient wifi;
-  for(int i =0;i<Nnum;i++){
-  URL += String(i)+"="+String(RSSIs[i]);
-  }
-  http.begin(wifi,URL); //Specify request destination
-  int httpCode = http.GET(); //Send the request
-  if (httpCode > 0) { //Check the returning code
-    String payload = http.getString();   //Get the request response payload
-    Serial.println(payload);             //Print the response payload
-  }else Serial.println("An error ocurred");
-  http.end();   //Close connection 
+void sendDatas(){
+ WiFiClient wifi;
+ for(int i =0;i<11;i++){
+ URL += String(i)+"="+String(RSSIs[i]);
+ }
+ http.begin(wifi,URL); //Specify request destination
+ int httpCode = http.GET(); //Send the request
+ if (httpCode > 0) { //Check the returning code
+   String payload = http.getString();   //Get the request response payload
+   Serial.println(payload);             //Print the response payload
+ }else Serial.println("An error ocurred");
+ http.end();   //Close connection 
 }
